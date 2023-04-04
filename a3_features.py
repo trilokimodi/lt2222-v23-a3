@@ -146,9 +146,9 @@ if __name__ == "__main__":
     split_train_, split_valid_ = random_split(train_dataset, [num_train, len(train_data) - num_train])
     
     BATCH_SIZE = 64
-    train_dataloader = DataLoader(split_train_, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
-    valid_dataloader = DataLoader(split_valid_, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
-    test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=collate_batch)
+    train_dataloader = DataLoader(split_train_, batch_size=len(split_train_), shuffle=True, collate_fn=collate_batch)
+    valid_dataloader = DataLoader(split_valid_, batch_size=len(split_valid_), shuffle=True, collate_fn=collate_batch)
+    test_dataloader = DataLoader(test_dataset, batch_size=len(test_dataset), shuffle=True, collate_fn=collate_batch)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")        
     model = TextClassificationModel(vocab_size=len(vocabObject), embed_dim=args.dims, num_class=len(labelEncoder.classes_)).to(device)
@@ -156,37 +156,38 @@ if __name__ == "__main__":
     train_df = pd.DataFrame()
     for idx, (text, label, offsets) in enumerate(train_dataloader):
         vectorEmbeddded = model.embedding(text, offsets)
-        vectorEmbeddded = torch.flatten(vectorEmbeddded, start_dim=1)
-        vectorEmbeddded = list(vectorEmbeddded)
-        vectorEmbeddded.append(label)
+        vectorEmbeddded = vectorEmbeddded.cpu().detach().numpy()
         row_to_append = pd.DataFrame(data=vectorEmbeddded)
         train_df = pd.concat([train_df, row_to_append])
+        train_df['class'] = label.cpu().detach().numpy()
     train_df['type'] = ['train'] * len(train_df)
+    print(train_df.head(5))
         
     test_df = pd.DataFrame()
     for idx, (text, label, offsets) in enumerate(test_dataloader):
         vectorEmbeddded = model.embedding(text, offsets)
-        vectorEmbeddded = torch.flatten(vectorEmbeddded, start_dim=1)
-        vectorEmbeddded = list(vectorEmbeddded)
-        vectorEmbeddded.append(label)
+        vectorEmbeddded = vectorEmbeddded.cpu().detach().numpy()
         row_to_append = pd.DataFrame(data=vectorEmbeddded)
         test_df = pd.concat([test_df, row_to_append])
+        test_df['class'] = label.cpu().detach().numpy()
     test_df['type'] = ['test'] * len(test_df)
+    print(test_df.head(5))
 
     valid_df = pd.DataFrame()
     for idx, (text, label, offsets) in enumerate(valid_dataloader):
         vectorEmbeddded = model.embedding(text, offsets)
-        vectorEmbeddded = torch.flatten(vectorEmbeddded, start_dim=1)
-        vectorEmbeddded = list(vectorEmbeddded)
-        vectorEmbeddded.append(label)
+        vectorEmbeddded = list(vectorEmbeddded.cpu().detach().numpy())
         row_to_append = pd.DataFrame(data=vectorEmbeddded)
         valid_df = pd.concat([valid_df, row_to_append])
+        valid_df['class'] = label.cpu().detach().numpy()
     valid_df['type'] = ['valid'] * len(valid_df)
+    print(valid_df.head(5))
     
     df = pd.DataFrame()
     df = pd.concat([df, train_df])
     df = pd.concat([df, test_df])
     df = pd.concat([df, valid_df])
+    print(df.head(5))
     
     
     print("Writing to {}...".format(args.outputfile))
