@@ -145,7 +145,6 @@ if __name__ == "__main__":
     num_train = int(len(train_data) * 0.95)  ## For validation data (not train and test)
     split_train_, split_valid_ = random_split(train_dataset, [num_train, len(train_data) - num_train])
     
-    BATCH_SIZE = 64
     train_dataloader = DataLoader(split_train_, batch_size=len(split_train_), shuffle=True, collate_fn=collate_batch)
     valid_dataloader = DataLoader(split_valid_, batch_size=len(split_valid_), shuffle=True, collate_fn=collate_batch)
     test_dataloader = DataLoader(test_dataset, batch_size=len(test_dataset), shuffle=True, collate_fn=collate_batch)
@@ -161,7 +160,6 @@ if __name__ == "__main__":
         train_df = pd.concat([train_df, row_to_append])
         train_df['class'] = label.cpu().detach().numpy()
     train_df['type'] = ['train'] * len(train_df)
-    print(train_df.head(5))
         
     test_df = pd.DataFrame()
     for idx, (text, label, offsets) in enumerate(test_dataloader):
@@ -171,7 +169,6 @@ if __name__ == "__main__":
         test_df = pd.concat([test_df, row_to_append])
         test_df['class'] = label.cpu().detach().numpy()
     test_df['type'] = ['test'] * len(test_df)
-    print(test_df.head(5))
 
     valid_df = pd.DataFrame()
     for idx, (text, label, offsets) in enumerate(valid_dataloader):
@@ -181,13 +178,11 @@ if __name__ == "__main__":
         valid_df = pd.concat([valid_df, row_to_append])
         valid_df['class'] = label.cpu().detach().numpy()
     valid_df['type'] = ['valid'] * len(valid_df)
-    print(valid_df.head(5))
     
     df = pd.DataFrame()
     df = pd.concat([df, train_df])
     df = pd.concat([df, test_df])
     df = pd.concat([df, valid_df])
-    print(df.head(5))
     
     
     print("Writing to {}...".format(args.outputfile))
