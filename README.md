@@ -9,5 +9,6 @@ NOTE: The expectation from a3_features.py is complete, but the code in a3_model.
 Model training was successfully accomplished when I first designed the whole script in a single notebook. But after splitting it to features and model, I did not had enough time left to finish the finishing changes to make the model work.
 
 The combined script can be found in this link, https://colab.research.google.com/drive/12_bUl39MdaNIyIDVP3cLdsdhGYX9bdvu?usp=sharing
+This file also contains some results at the end and contains no error.
 
 Apologies, for an extremely late submission and fewer documentation. I couldn't as much time as I did in first 2 assignments. 
